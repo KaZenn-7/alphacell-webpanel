@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lista de Pedidos</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+      }
+
+      h1 {
+        text-align: center;
+        margin-top: 20px;
+        color: #333;
+      }
+
+      #lista-pedidos {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      li {
+        background-color: #fff;
+        padding: 10px;
+        margin: 10px 0; /* Espaçamento vertical */
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        width: 80%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      li strong {
+        margin-right: 10px; /* Espaçamento horizontal */
+      }
+      li span {
+        margin-right: 10px; /* Espaçamento horizontal */
+      }
+
+      li button {
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 3px;
+        cursor: pointer;
+      }
+
+      li button:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+      }
+
+      li button:hover {
+        background-color: #0056b3;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Lista de Pedidos</h1>
+    <ul id="lista-pedidos">
+      <!-- A lista de pedidos será adicionada aqui -->
+    </ul>
+
+    <script>
+      const ws = new WebSocket("ws://localhost:8080");
+
+      ws.onopen = function () {
+        console.log("Conexão estabelecida com o servidor WebSocket");
+      };
+
+      ws.onmessage = function (event) {
+        console.log("Mensagem recebida do servidor WebSocket:", event.data);
+        // Atualize a lista de pedidos aqui, por exemplo, chamando carregarPedidos()
+        carregarPedidos();
+      };
+      // Função para carregar o arquivo JSON local
+      function carregarPedidos() {
+        fetch("/api/pedidos", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            const listaPedidos = document.getElementById("lista-pedidos");
+
+            // Limpa a lista para atualização
+            listaPedidos.innerHTML = "";
+
+            // Para cada pedido no JSON, cria um item na lista
+            data.forEach((pedido) => {
+              const listItem = document.createElement("li");
+              listItem.innerHTML = `
+                        <strong>Cliente:</strong> ${pedido.name}
+                        <span>-</span>
+                        <strong>Valor do Pedido:</strong> R$ ${pedido.valor},00
+                        <button onclick="marcarComoPago('${pedido.name}', this)">Marcar como Pago</button>
+                    `;
+              listaPedidos.appendChild(listItem);
+            });
+          })
+          .catch((error) => console.error("Erro ao carregar pedidos:", error));
+      }
+
+      // Função para atualizar os pedidos a cada intervalo de tempo
+      function atualizarPedidos() {
+        setInterval(carregarPedidos, 5000); // Atualiza a cada 5 segundos (5000 milissegundos)
+      }
+      // Função para marcar o pedido como pago
+      function marcarComoPago(nomePedido, botao) {
+        console.log(`Pedido de ${nomePedido} foi marcado como pago.`);
+        botao.textContent = "Pago";
+        botao.disabled = true;
+        // Aqui você pode adicionar a lógica para enviar a informação de que o pedido foi pago para o backend, se necessário.
+
+        // Remove o item da lista após marcar como pago
+        const listItem = botao.parentElement;
+        listItem.remove();
+        fetch("/api/delPedido", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ name: nomePedido }),
+        });
+      }
+
+      // Chama a função para carregar os pedidos e iniciar a atualização automática quando a página carregar
+      document.addEventListener("DOMContentLoaded", () => {
+        carregarPedidos(); // Carrega os pedidos imediatamente
+        atualizarPedidos(); // Inicia a atualização automática
+      });
+    </script>
+  </body>
+</html>

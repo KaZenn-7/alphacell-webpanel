@@ -1,0 +1,16 @@
+{
+  "name": "aplhacell-webpanel",
+  "version": "1.0.0",
+  "description": "A simple webpanel for payments queue",
+  "main": "index.js",
+  "scripts": {
+    "test": "node ."
+  },
+  "author": "ramo-s",
+  "license": "GPL-3.0-or-later",
+  "dependencies": {
+    "express": "^4.19.2",
+    "path": "^0.12.7",
+    "ws": "^8.17.0"
+  }
+}

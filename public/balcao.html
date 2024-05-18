@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Balcão de Pedidos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        h2 {
+            color: #333;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+        }
+        label {
+            margin-bottom: 5px;
+            color: #555;
+        }
+        input[type="text"], input[type="number"] {
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        input[type="submit"] {
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        .cancel {
+            background-color: #dc3545;
+        }
+        .cancel:hover {
+            background-color: #c82333;
+        }
+        .message {
+            text-align: center;
+            font-size: 1em;
+            color: green;
+        }
+        .error {
+            text-align: center;
+            font-size: 1em;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Balcão de Pedidos</h1>
+    <div class="form-section">
+        <h2>Criação de Pedido</h2>
+        <form id="formNovoPedido" action="#" method="POST">
+            <label for="nomeCliente">Nome do Cliente:</label>
+            <input type="text" id="nomeCliente" name="nomeCliente" required>
+
+            <label for="valorPedido">Valor do Pedido:</label>
+            <input type="number" id="valorPedido" name="valorPedido" step="0.01" required>
+
+            <input type="submit" value="Novo Pedido">
+        </form>
+        <div class="message" id="messageNovoPedido"></div>
+        <div class="error" id="errorNovoPedido"></div>
+    </div>
+    <div class="form-section">
+        <h2>Cancelamento de Pedido</h2>
+        <form id="formCancelarPedido" action="#" method="POST">
+            <label for="nomeClienteCancel">Nome do Cliente:</label>
+            <input type="text" id="nomeClienteCancel" name="nomeClienteCancel" required>
+
+            <!-- <label for="valorPedidoCancel">Valor do Pedido:</label>
+            <input type="number" id="valorPedidoCancel" name="valorPedidoCancel" step="0.01" required> -->
+
+            <input type="submit" value="Cancelar Pedido" class="cancel">
+        </form>
+        <div class="message" id="messageCancelarPedido"></div>
+        <div class="error" id="errorCancelarPedido"></div>
+    </div>
+</div>
+
+<script>
+    document.getElementById("formNovoPedido").addEventListener("submit", function (event) {
+        event.preventDefault();
+        const form = event.target;
+        const nome = document.getElementById("nomeCliente").value;
+        const valor = document.getElementById("valorPedido").value;
+        fetch("/api/newPedido", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ name: nome, valor: valor }),
+        })
+        .then(response => response.json().then(data => ({ status: response.status, body: data })))
+        .then(({ status, body }) => {
+            const messageElement = document.getElementById("messageNovoPedido");
+            const errorElement = document.getElementById("errorNovoPedido");
+            if (status >= 200 && status < 300) {
+                messageElement.textContent = body.message;
+                errorElement.textContent = '';
+                setTimeout(() => {
+                    messageElement.textContent = "";
+                }, 4000);
+            } else {
+                messageElement.textContent = '';
+                errorElement.textContent = body.error;
+                setTimeout(() => {
+                    errorElement.textContent = "";
+                }, 4000);
+            }
+        })
+        .catch(error => {
+            const errorElement = document.getElementById("errorNovoPedido");
+            errorElement.textContent = "Erro ao criar pedido.";
+            setTimeout(() => {
+                errorElement.textContent = "";
+            }, 4000);
+        });
+        form.reset(); // Resetando o formulário
+    });
+
+    document.getElementById("formCancelarPedido").addEventListener("submit", function (event) {
+        event.preventDefault();
+        const form = event.target;
+        const nome = document.getElementById("nomeClienteCancel").value;
+        // const valor = document.getElementById("valorPedidoCancel").value;
+        fetch("/api/delPedido", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ name: nome}),
+        })
+        .then(response => response.json().then(data => ({ status: response.status, body: data })))
+        .then(({ status, body }) => {
+            const messageElement = document.getElementById("messageCancelarPedido");
+            const errorElement = document.getElementById("errorCancelarPedido");
+            if (status >= 200 && status < 300) {
+                messageElement.textContent = body.message;
+                errorElement.textContent = '';
+                setTimeout(() => {
+                    messageElement.textContent = "";
+                }, 4000);
+            } else {
+                messageElement.textContent = '';
+                errorElement.textContent = body.error;
+                setTimeout(() => {
+                    errorElement.textContent = "";
+                }, 4000);
+            }
+        })
+        .catch(error => {
+            const errorElement = document.getElementById("errorCancelarPedido");
+            errorElement.textContent = "Erro ao cancelar pedido.";
+            setTimeout(() => {
+                errorElement.textContent = "";
+            }, 4000);
+        });
+        form.reset(); // Resetando o formulário
+    });
+</script>
+
+</body>
+</html>
