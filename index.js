@@ -1,9 +1,7 @@
 // Importação dos módulos
 const express = require("express");
-const fs = require("fs");
 const path = require("path");
-const WebSocket = require('ws');
-const wss = new WebSocket.Server({ port: 8080 });
+const wss = require('./lib/websocket');
 // Instância do express e definição da porta
 const app = express();
 const port = 80;
@@ -15,7 +13,6 @@ wss.on('connection', function connection(ws) {
       console.log('Cliente desconectado');
   });
 });
-
 
 // Middleware para permitir análise do corpo da solicitação JSON
 app.use(express.json());
@@ -30,12 +27,6 @@ app.use(express.static(path.join(__dirname, "public")));
 //   console.error("Erro ao ler o arquivo pagos.json:", err);
 // }
 
-
-// Pagina inicial
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
-});
-
 // ROUTERS
 //========================================\\
 const navRouters = require('./routes/nav');
@@ -44,7 +35,7 @@ const apiRouters = require('./routes/api');
 //MIDDLEWARES
 //========================================\\
 app.use('/api', apiRouters);
-app.use('/nav', navRouters);
+app.use('/', navRouters);
 // Middleware para permitir análise do corpo da solicitação JSON
 app.use(express.json());
 

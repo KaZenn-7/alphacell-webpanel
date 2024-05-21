@@ -103,7 +103,7 @@
               const listItem = document.createElement("li");
               listItem.innerHTML = `
                         <strong>Cliente:</strong> ${pedido.name}
-                        <span>-</span>
+                        <span> </span>
                         <strong>Valor do Pedido:</strong> R$ ${pedido.valor},00
                         <button onclick="marcarComoPago('${pedido.name}', this)">Marcar como Pago</button>
                     `;
@@ -113,10 +113,6 @@
           .catch((error) => console.error("Erro ao carregar pedidos:", error));
       }
 
-      // Função para atualizar os pedidos a cada intervalo de tempo
-      function atualizarPedidos() {
-        setInterval(carregarPedidos, 5000); // Atualiza a cada 5 segundos (5000 milissegundos)
-      }
       // Função para marcar o pedido como pago
       function marcarComoPago(nomePedido, botao) {
         console.log(`Pedido de ${nomePedido} foi marcado como pago.`);
@@ -139,7 +135,6 @@
       // Chama a função para carregar os pedidos e iniciar a atualização automática quando a página carregar
       document.addEventListener("DOMContentLoaded", () => {
         carregarPedidos(); // Carrega os pedidos imediatamente
-        atualizarPedidos(); // Inicia a atualização automática
       });
     </script>
   </body>

@@ -2,6 +2,8 @@ var express = require("express");
 var router = express.Router();
 const fs = require("fs");
 const path = require("path");
+const WebSocket = require('ws');
+const wss = require('../lib/websocket');
 
 // Função para enviar atualizações para os clientes conectados
 function enviarAtualizacao() {
